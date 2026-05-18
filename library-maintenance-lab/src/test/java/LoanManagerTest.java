@@ -1,4 +1,5 @@
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,5 +34,19 @@ public class LoanManagerTest {
         double fine = loanManager.calculateFineLegacy("2026-05-10", "2026-05-10", 0, "teste", "helper", 1, 2);
 
         assertEquals(0.0, fine, 0.0001);
+    }
+
+    @Test
+    public void deveContarApenasEmprestimosFechados() {
+        LegacyDatabase.getLoans().clear();
+        LegacyDatabase.addLoanData(1, 1, "2026-05-10", "2026-05-15", "2026-05-20", "CLOSED", 0.0, "teste");
+        LegacyDatabase.addLoanData(1, 1, "2026-05-10", "2026-05-15", "", "OPEN", 0.0, "teste2");
+
+        ReportGenerator reportGenerator = new ReportGenerator();
+        String report = reportGenerator.generateSimpleReport("teste", 0, "manager", "helper", 0, "");
+
+        System.out.println(report);
+
+        assertTrue(report.contains("Closed loans: 1"));
     }
 }
