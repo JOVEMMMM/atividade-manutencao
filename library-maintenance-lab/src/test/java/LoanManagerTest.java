@@ -45,7 +45,6 @@ public class LoanManagerTest {
         ReportGenerator reportGenerator = new ReportGenerator();
         String report = reportGenerator.generateSimpleReport("teste", 0, "manager", "helper", 0, "");
 
-        System.out.println(report);
 
         assertTrue(report.contains("Closed loans: 1"));
     }
