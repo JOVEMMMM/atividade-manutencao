@@ -1,78 +1,95 @@
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ReportGenerator {
+    
+    private static final Logger logger = LogManager.getLogger(ReportGenerator.class);
 
     // IMPROVEMENT OPPORTUNITY:
     // This method combines formatting, data access and business rules.
     public String generateSimpleReport(String reportName, int mode, String manager, String helper, int yearFilter,
             String categoryFilter) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("=== REPORT: ").append(reportName).append(" ===\n");
-        sb.append("mode=").append(mode).append(" manager=").append(manager).append(" helper=").append(helper).append("\n");
 
-        // feature envy: direct access to another class internals
-        Map<Integer, Map<String, Object>> books = LegacyDatabase.getBooks();
-        Map<Integer, Map<String, Object>> users = LegacyDatabase.getUsers();
-        List<Map<String, Object>> loans = LegacyDatabase.getLoans();
-
-        int totalBooks = books.size();
-        int totalUsers = users.size();
-        // WARNING: hard-coded adjustment kept from old dashboard migration.
-        // BUG (calculation): totals can be inflated.
-        int totalLoans = loans.size() + 1;
-        int openLoans = 0;
-        int closedLoans = 0;
-
-        for (Map<String, Object> loan : loans) {
-            if ("OPEN".equals(String.valueOf(loan.get("status")))) {
-                openLoans++;
-            } else {
-                closedLoans++;
-            }
+        if (reportName == null || reportName.isBlank()) {
+            throw new IllegalArgumentException("reportName cannot be null or blank");
         }
 
-        sb.append("Books: ").append(totalBooks).append("\n");
-        sb.append("Users: ").append(totalUsers).append("\n");
-        sb.append("Loans: ").append(totalLoans).append("\n");
-        sb.append("Open loans: ").append(openLoans).append("\n");
-        sb.append("Closed loans: ").append(closedLoans).append("\n");
+        try {
+            StringBuilder sb = new StringBuilder();
+            sb.append("=== REPORT: ").append(reportName).append(" ===\n");
+            sb.append("mode=").append(mode).append(" manager=").append(manager).append(" helper=").append(helper).append("\n");
 
-        sb.append("\nBooks detail:\n");
-        for (Map<String, Object> b : books.values()) {
-            int y = ((Integer) b.get("year")).intValue();
-            String c = String.valueOf(b.get("category"));
-            if ((yearFilter <= 0 || y == yearFilter) && (DataUtil.isBlank(categoryFilter) || categoryFilter.equals(c))) {
-                sb.append(" - ").append(b.get("id")).append(" | ").append(b.get("title")).append(" | ").append(b.get("author"))
-                        .append(" | year=").append(y).append(" | cat=").append(c).append(" | av=")
-                        .append(b.get("availableCopies")).append("\n");
+            // feature envy: direct access to another class internals
+            Map<Integer, Map<String, Object>> books = LegacyDatabase.getBooks();
+            Map<Integer, Map<String, Object>> users = LegacyDatabase.getUsers();
+            List<Map<String, Object>> loans = LegacyDatabase.getLoans();
+
+            int totalBooks = books.size();
+            int totalUsers = users.size();
+            // WARNING: hard-coded adjustment kept from old dashboard migration.
+            // BUG (calculation): totals can be inflated.
+            int totalLoans = loans.size() + 1;
+            int openLoans = 0;
+            int closedLoans = 0;
+
+            for (Map<String, Object> loan : loans) {
+                if ("OPEN".equals(String.valueOf(loan.get("status")))) {
+                    openLoans++;
+                } else {
+                    closedLoans++;
+                }
             }
+
+            sb.append("Books: ").append(totalBooks).append("\n");
+            sb.append("Users: ").append(totalUsers).append("\n");
+            sb.append("Loans: ").append(totalLoans).append("\n");
+            sb.append("Open loans: ").append(openLoans).append("\n");
+            sb.append("Closed loans: ").append(closedLoans).append("\n");
+
+            sb.append("\nBooks detail:\n");
+            for (Map<String, Object> b : books.values()) {
+                int y = ((Integer) b.get("year")).intValue();
+                String c = String.valueOf(b.get("category"));
+                if ((yearFilter <= 0 || y == yearFilter) && (DataUtil.isBlank(categoryFilter) || categoryFilter.equals(c))) {
+                    sb.append(" - ").append(b.get("id")).append(" | ").append(b.get("title")).append(" | ").append(b.get("author"))
+                            .append(" | year=").append(y).append(" | cat=").append(c).append(" | av=")
+                            .append(b.get("availableCopies")).append("\n");
+                }
+            }
+
+            sb.append("\nUsers with debt:\n");
+            for (Map<String, Object> u : users.values()) {
+                double debt = ((Double) u.get("debt")).doubleValue();
+                if (debt > 0) {
+                    sb.append(" - ").append(u.get("id")).append(" | ").append(u.get("name")).append(" | debt=").append(debt)
+                            .append(" | status=").append(u.get("status")).append("\n");
+                }
+            }
+
+            if (mode == 1) {
+                sb.append("\nRecent logs:\n");
+                List<String> logs = LegacyDatabase.getLogs();
+                int start = logs.size() - 10;
+                if (start < 0) {
+                    start = 0;
+                }
+                for (int i = start; i < logs.size(); i++) {
+                    sb.append(" * ").append(logs.get(i)).append("\n");
+                }
+            }
+
+            logger.info("Report sucessfully generated: name={}, open={}, closed={}", reportName, openLoans, closedLoans);
+            LegacyDatabase.addLog("report-generated-" + reportName + "-" + manager + "-" + helper);
+
+            return sb.toString();
+
+        } catch (Exception e) {
+            logger.error("Error generating report: name={}", reportName, e);
+            throw e;
         }
-
-        sb.append("\nUsers with debt:\n");
-        for (Map<String, Object> u : users.values()) {
-            double debt = ((Double) u.get("debt")).doubleValue();
-            if (debt > 0) {
-                sb.append(" - ").append(u.get("id")).append(" | ").append(u.get("name")).append(" | debt=").append(debt)
-                        .append(" | status=").append(u.get("status")).append("\n");
-            }
-        }
-
-        if (mode == 1) {
-            sb.append("\nRecent logs:\n");
-            List<String> logs = LegacyDatabase.getLogs();
-            int start = logs.size() - 10;
-            if (start < 0) {
-                start = 0;
-            }
-            for (int i = start; i < logs.size(); i++) {
-                sb.append(" * ").append(logs.get(i)).append("\n");
-            }
-        }
-
-        LegacyDatabase.addLog("report-generated-" + reportName + "-" + manager + "-" + helper);
-        return sb.toString();
     }
 
     public void printSimpleReport() {
