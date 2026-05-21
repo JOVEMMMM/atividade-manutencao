@@ -15,6 +15,14 @@ Para orientar a execução, utilize o projeto `library-maintenance-lab`.
 - `library-maintenance-lab/src/main/java/LoanManager.java`: exemplo de classe com lógica de empréstimo e pontos de melhoria
 - `library-maintenance-lab/src/test/java/LoanManagerTest.java`: exemplo de teste unitário com JUnit 4
 
+### Tutorial de instalação e configuração do SonarQube no Windows
+
+Como apoio para montar o ambiente local, consulte o guia:
+
+- [SonarQube Community Edition for Windows: Setup & Usage Guide](https://medium.com/@anummateen5311/sonarqube-community-edition-for-windows-setup-usage-guide-bbd8dfacdca4)
+
+O tutorial apresenta o fluxo de instalação do SonarQube Community Edition, configuração do Java e do Sonar Scanner, criação do projeto local e execução da análise.
+
 ## Análise Estática e Inventário da Dívida
 
 O primeiro passo é executar uma análise estática no código-fonte do sistema legado para levantar um inventário das principais dívidas de implementação.
