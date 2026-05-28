@@ -22,6 +22,8 @@ public class LegacyDatabase {
     public static int GLOBAL_MAX_LOAN_DAYS = 14;
     public static boolean WORKAROUND_FLAG = true;
 
+    public static final String CATEGORY_SOFTWARE = "Software";
+
     // this method adds a book
     public static int addBookData(String title, String author, int year, String category, int totalCopies, int availableCopies,
             String shelfCode, String isbn) {
@@ -110,9 +112,9 @@ public class LegacyDatabase {
         if (books.size() > 0 || users.size() > 0) {
             return;
         }
-        addBookData("Clean Code", "Robert C. Martin", 2008, "Software", 3, 3, "A1", "ISBN-111");
-        addBookData("Design Patterns", "GoF", 1994, "Software", 2, 2, "A2", "ISBN-222");
-        addBookData("Refactoring", "Martin Fowler", 1999, "Software", 4, 4, "A3", "ISBN-333");
+        addBookData("Clean Code", "Robert C. Martin", 2008, CATEGORY_SOFTWARE, 3, 3, "A1", "ISBN-111");
+        addBookData("Design Patterns", "GoF", 1994, CATEGORY_SOFTWARE, 2, 2, "A2", "ISBN-222");
+        addBookData("Refactoring", "Martin Fowler", 1999, CATEGORY_SOFTWARE, 4, 4, "A3", "ISBN-333");
 
         addUserData("Ana", "ana@mail.com", "1111-1111", "student", "Maringa", "DOC-1", "ACTIVE");
         addUserData("Bruno", "bruno@mail.com", "2222-2222", "teacher", "Maringa", "DOC-2", "ACTIVE");
