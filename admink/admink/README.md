@@ -43,6 +43,7 @@ Siga a ordem apresentada para evitar erros. O PHP será instalado e ativado com 
 - MariaDB: [downloads oficiais](https://mariadb.org/download/)
 - MySQL Server: [downloads oficiais](https://dev.mysql.com/downloads/mysql/)
 - MySQL Workbench: [downloads oficiais](https://dev.mysql.com/downloads/workbench/)
+- Material de apoio sobre testes automatizados no Admink: [TCC - Implementação de testes automatizados no Admink](../apoio/TESTES/TCC%20Engenharia%20de%20Software%20-%20João%20Vitor%20-%202022.pdf)
 
 **2) Configurar o PHP com pvm**
 - Use o `pvm` para instalar e ativar o PHP 7.3.x.
